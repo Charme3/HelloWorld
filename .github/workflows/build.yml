@@ -21,4 +21,14 @@ jobs:
         with:
           context: ./HelloWorld
           push: true
-          tags: lostmagick/helloworld:latest
+          tags: lostmagick/helloworld:${{ github.sha }}
+
+      - name: Update CD repo
+        run: |
+          git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/Charme3/HelloWorld-cd.git
+          cd HelloWorld-cd
+          sed -i "s|lostmagick/helloworld:.*|lostmagick/helloworld:${{ github.sha }}|g" deployment.yaml
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Update image to ${{ github.sha }}"
+          git push
